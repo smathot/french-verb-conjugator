@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*- 
 
 """
@@ -17,11 +16,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with french-verb-conjugator. If not, see <http://www.gnu.org/licenses/>.
 """
-
-import sys
-import colorama
-from random import choice, seed, sample, shuffle
-from time import time
 
 pronouns = 'je', 'tu', 'il', 'nous', 'vous', 'ils'
 tenses = 'present', 'future', 'imperfect', 'conditional', 'past participle'
@@ -151,16 +145,7 @@ irregular = {
 	
 	}
 	
-regular = ['aimer', 'arriver', 'chanter', 'chercher', 'danser', 'demander', \
-	'dépenser', 'détester', 'donner', 'écouter', 'étudier', 'fermer', 'goûter', \
-	'jouer', 'laver', 'parler', 'passer', 'penser', 'porter', 'regarder', \
-	'rêver', 'sembler', 'skier', 'travailler', 'trouver', 'visiter', 'voler', \
-	'abolir', 'agir', 'avertir', 'bâtir', 'bénir', 'choisir', 'établir', \
-	'étourdir', 'finir', 'grossir', 'guérir', 'malgrir', 'nourrir', 'obéir', \
-	'punir', 'réfléchir', 'remplir', 'réussir', 'rougir', 'vieillir', 'attendre', \
-	'défendre', 'descendre', 'entendre', 'étendre', 'fondre', 'perdre', \
-	'prétendre', 'rendre', 'répandre', 'répondre', 'vendre']
-
+regular = open('regularverbs.txt').read().split('\n')
 verbs = regular + irregular.keys()
 
 def conjugate(verb, pronoun, tense):
@@ -186,93 +171,15 @@ def conjugate(verb, pronoun, tense):
 	if tense == 'past participle':
 		ending = endings[pattern][tense]
 	else:
-		ending = endings[pattern][tense][pronouns.index(pronoun)]	
+		ending = endings[pattern][tense][pronouns.index(pronoun)]		
+		# Check for spelling-change verb, like commencer.
+		# See <http://french.about.com/od/grammar/a/spellingchangec.htm>
+		if stem[-1] == 'c' and ending[0] in ('a', 'o'):
+			stem = stem[:-1] + 'ç'
+		# Check for spelling-change verb, like arranger.
+		# See <http://french.about.com/od/grammar/a/spellingchangeg.htm>
+		if stem[-1] == 'g' and ending[0] in ('a', 'o'):
+			stem = stem + 'e'
 	return stem + ending
 
-def challenge(verb, pronoun, tense):
-	
-	"""
-	Handles a single challenge.
-	
-	Arguments:
-	verb		--	The verb (e.g., 'commencer')
-	pronoun		--	The pronoun (e.g., 'je')
-	tense		--	The tense (e.g., 'present')
-	
-	Returns:
-	True or False depending on whether the response was correct.	
-	"""		
-			  
-	query =  colorama.Style.BRIGHT + verb + colorama.Style.RESET_ALL + \
-		' (%s): %s ' % (tense, pronoun)
-	response = raw_input(query)
-	if response == 'q':
-		sys.exit()
-	answer = conjugate(verb, pronoun, tense)
-	if response == answer:
-		print colorama.Fore.GREEN + 'Correct!'
-		correct = True
-	else:
-		correct = False
-		print colorama.Fore.RED + 'Incorrect! The correct answer is "%s"' \
-			% answer
-	print colorama.Fore.RESET
-	return correct
-
-def test(length):
-	
-	"""
-	Runs a test.
-	
-	Arguments:
-	length		--	The number of conjugations asked.
-	"""
-	
-	print
-	print colorama.Style.BRIGHT + 'Welcome to the French verb conjugator test!'
-	print colorama.Style.RESET_ALL
-	print '- You will be asked to conjugate a verb for a specific pronoun and tense.'
-	print '- The test consists of %d conjugations.' % length
-	print '- Try to be as fast and accurate as possible!'	
-	print
-	print 'Press enter to begin! Type \'q\' at any time to exit.'
-	response = raw_input()
-	if response == 'q':
-		return
-
-	# Make a selection that favours the irregular verbs
-	selection = irregular.keys() + sample(regular, length-len(irregular))
-	shuffle(selection)
-	
-	seed()	
-	correct = 0
-	i = 0
-	t1 = time()
-	
-	for verb in selection:		
-		tense = choice(tenses)
-		if tense == 'past participle':
-			pronoun = 'j\'ai/ je suis'
-		else:
-			pronoun = choice(pronouns)		
-		print '%d / %d' % (i+1, length)		
-		correct += challenge(verb, pronoun, tense)
-		i += 1
-
-	acc = 100.*correct/i
-	t = time() - t1
-	score = 100.*acc/t
-	print colorama.Style.BRIGHT + 'Your results:' + colorama.Style.RESET_ALL
-	print 'Accuracy: %.0f%%' % acc
-	print 'Time passed: %.1fs' % t
-	print 'Score: %.0f' % score
-		
-	print
-	print 'End of test!'
-	print
-
-if __name__ == '__main__':
-	
-	colorama.init()
-	test(20)
 
