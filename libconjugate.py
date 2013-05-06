@@ -80,7 +80,7 @@ irregular = {
 		
 	'devoir' : {
 		'present' : ['dois', 'dois', 'doit', 'devons', 'devez', 'doivent'],
-		'future' : ['devrais', 'devras', 'devra', 'devrons', 'devrez', \
+		'future' : ['devrai', 'devras', 'devra', 'devrons', 'devrez', \
 			'devront'],
 		'imperfect' : ['devais', 'devais', 'devait', 'devions', 'deviez', \
 			'devaient'],
